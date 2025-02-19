@@ -14,7 +14,7 @@ def transmission_model(w, a, r):
     serves as a model for the curve fit
     """
     radius = 150e-6
-    n_eff = 1.496
+    n_eff = 1.8
     L = (2 * np.pi) * radius  # Circumference in meters
     beta = (2 * np.pi * n_eff) / w # propogation constant (radians per meter)
     phi = beta * L  # Phase shift in radians
@@ -22,7 +22,7 @@ def transmission_model(w, a, r):
     denominator = 1 - (2 * a * r * np.cos(phi)) + (r * a)**2  
     return numerator / denominator
 
-def calculate_transmission(a=0.85, r=0.85, n_eff=1.496, radius=150e-6, wavelength_range=(760e-9, 765e-9), num_points=10000):
+def calculate_transmission(a=0.85, r=0.85, n_eff=1.8, radius=150e-6, wavelength_range=(760e-9, 765e-9), num_points=10000):
     """
     calculates transmission for a range of wavelengths based on given parameters
     
@@ -104,6 +104,11 @@ def q_internal(loaded, t):
     internal_list = [(2 * loaded[i])/ (1 + np.sqrt(t[i])) for i in range(len(loaded))]
     return internal_list
 
+def loss(q_int, wavelength):
+    n_g = 1.5
+    loss_list = [(2 * np.pi * n_g) / (q_int[i] * wavelength[i]* 1e2 ) for i in range(len(wavelength))]
+    return loss_list
+
 def plot_results(wavelengths, intensity_ratios, a, r):
     """
     Plots the original noisy data and the best fit curve.
@@ -174,3 +179,6 @@ print(f"Q-Loaded: {loaded_factors}")
 
 internal_factors = list(map(float, q_internal(loaded_factors, minima_transmissions)))
 print(f"Q-Internal: {internal_factors}")
+
+loss_values = list(map(float, loss(internal_factors, minima_wavelenghts)))
+print(f"Loss: {loss_values}") 
