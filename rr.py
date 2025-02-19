@@ -153,4 +153,5 @@ plot_results(wavelengths, intensities, a, r)
 ##FIND PEAK
 minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
 
+#graph with minima plotted
 plot_minima(minima_wavelenghts, minima_transmissions)
