@@ -82,16 +82,28 @@ def fit_transmission(wavelengths, intensity_ratios):
 
 #def calculate_loss():
 
-def fwhm(a, r):
+def fwhm(a, r, min_wavelengths):
     radius = 150e-6
     L = (2 * np.pi) * radius  # Circumference in meters
-    wave_res = 760.07911e-9
     n_g = 1.5
-    numerator = (1- r * a) * wave_res **2
-    denominator = (np.pi * n_g * L) * np.sqrt(r * a)
-    return numerator /denominator
-    
+    fwhm_list=[]
 
+    for wave in min_wavelengths:
+        numerator = (1- r * a) * wave **2
+        denominator = (np.pi * n_g * L) * np.sqrt(r * a)
+        fullwhm = numerator/denominator
+        fwhm_list.append(float(fullwhm))
+
+    return fwhm_list
+
+def q_factor(min_wavelengths, fwhm):
+    q_list = []
+    for i in range(11):
+        factor = min_wavelengths[i] / fwhm[i]
+        q_list.append(float(factor))
+
+    return q_list
+        
 
 
 
@@ -144,8 +156,7 @@ a, r = fit_transmission(wavelengths, intensities)
 print(f"Optimal values: a={a}, r={r}")
 
 #Find FWHM
-width = fwhm(a, r)
-print(f"FWHM: {width}")
+
 
 plot_results(wavelengths, intensities, a, r)
 
@@ -155,5 +166,11 @@ minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
 #print(minima_wavelenghts)
 #print(minima_transmissions)
 
+widths = fwhm(a, r, minima_wavelenghts)
+print(f"FWHM: {widths}")
+
 #graph with minima plotted
 plot_minima(minima_wavelenghts, minima_transmissions)
+
+factors = q_factor(minima_wavelenghts, widths)
+print(f"Q-Factors: {factors}")
