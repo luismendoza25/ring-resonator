@@ -96,16 +96,13 @@ def fwhm(a, r, min_wavelengths):
 
     return fwhm_list
 
-def q_factor(min_wavelengths, fwhm):
-    q_list = []
-    for i in range(11):
-        factor = min_wavelengths[i] / fwhm[i]
-        q_list.append(float(factor))
-
-    return q_list
+def q_loaded(min_wavelengths, fwhm):
+    loaded_list = [min_wavelengths[i] / fwhm[i] for i in range(len(min_wavelengths))]
+    return loaded_list
         
-
-
+def q_internal(loaded, t):
+    internal_list = [(2 * loaded[i])/ (1 + np.sqrt(t[i])) for i in range(len(loaded))]
+    return internal_list
 
 def plot_results(wavelengths, intensity_ratios, a, r):
     """
@@ -163,8 +160,8 @@ plot_results(wavelengths, intensities, a, r)
 
 ##FIND PEAK
 minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
-#print(minima_wavelenghts)
-#print(minima_transmissions)
+print(f"Wavelengths: {minima_wavelenghts}")
+print(f"Transmission: {minima_transmissions}")
 
 widths = fwhm(a, r, minima_wavelenghts)
 print(f"FWHM: {widths}")
@@ -172,5 +169,8 @@ print(f"FWHM: {widths}")
 #graph with minima plotted
 plot_minima(minima_wavelenghts, minima_transmissions)
 
-factors = q_factor(minima_wavelenghts, widths)
-print(f"Q-Factors: {factors}")
+loaded_factors = list(map(float, q_loaded(minima_wavelenghts, widths)))
+print(f"Q-Loaded: {loaded_factors}")
+
+internal_factors = list(map(float, q_internal(loaded_factors, minima_transmissions)))
+print(f"Q-Internal: {internal_factors}")
