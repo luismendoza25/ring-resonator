@@ -112,7 +112,7 @@ def plot_results(wavelengths, intensity_ratios, a, r):
     plt.show()
 
 
-def find_peaks(wavelenghts, intensity_ratios):
+def find_minima(wavelenghts, intensity_ratios):
     """finds the minima wavelenghts"""
     opposite_transm = -np.array(intensity_ratios)
     peaks, _ = find_peaks(opposite_transm)
@@ -120,6 +120,17 @@ def find_peaks(wavelenghts, intensity_ratios):
     minima_waves = wavelenghts[peaks]
     minima_transmissions = np.array(intensity_ratios)[peaks]
     return minima_waves, minima_transmissions
+
+def plot_minima(minima_wavelengths, minima_transmissions):
+    plt.figure(figsize=(8, 5))
+    plt.plot(wavelengths * 1e9, intensities, label='Noisy Data', color='b', alpha=0.5)
+    plt.scatter(minima_wavelengths * 1e9, minima_transmissions, color='red', label='Minima', s=10, zorder=3)
+    plt.xlabel('Wavelength (nm)')
+    plt.ylabel('Transmission')
+    plt.title('Transmission vs Wavelength with Minima')
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 # Generate noisy transmission data
 wavelengths, intensities = calculate_transmission()
@@ -140,3 +151,6 @@ plot_results(wavelengths, intensities, a, r)
 
 
 ##FIND PEAK
+minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
+
+plot_minima(minima_wavelenghts, minima_transmissions)
