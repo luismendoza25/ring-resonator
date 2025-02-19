@@ -115,7 +115,7 @@ def plot_results(wavelengths, intensity_ratios, a, r):
 def find_minima(wavelenghts, intensity_ratios):
     """finds the minima wavelenghts"""
     opposite_transm = -np.array(intensity_ratios)
-    peaks, _ = find_peaks(opposite_transm)
+    peaks, _ = find_peaks(opposite_transm, distance=50, height = -0.2)
 
     minima_waves = wavelenghts[peaks]
     minima_transmissions = np.array(intensity_ratios)[peaks]
@@ -152,6 +152,8 @@ plot_results(wavelengths, intensities, a, r)
 
 ##FIND PEAK
 minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
+#print(minima_wavelenghts)
+#print(minima_transmissions)
 
 #graph with minima plotted
 plot_minima(minima_wavelenghts, minima_transmissions)
