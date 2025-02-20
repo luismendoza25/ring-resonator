@@ -22,7 +22,7 @@ def transmission_model(w, a, r):
     denominator = 1 - (2 * a * r * np.cos(phi)) + (r * a)**2  
     return numerator / denominator
 
-def calculate_transmission(a=0.85, r=0.85, n_eff=1.8, radius=150e-6, wavelength_range=(760e-9, 765e-9), num_points=10000):
+def calculate_transmission(a=0.95, r=0.95, n_eff=1.8, radius=150e-6, wavelength_range=(560e-9, 565e-9), num_points=10000):
     """
     calculates transmission for a range of wavelengths based on given parameters
     
@@ -182,3 +182,6 @@ print(f"Q-Internal: {internal_factors}")
 
 loss_values = list(map(float, loss(internal_factors, minima_wavelenghts)))
 print(f"Loss: {loss_values}") 
+
+
+##make graph with average FWHM, Qint, Qloaded, Loss
