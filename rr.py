@@ -4,6 +4,8 @@ import random
 from scipy.optimize import curve_fit
 import csv
 from scipy.signal import find_peaks
+import statistics
+import pandas as pd
 
 ###intensity ratio means transmission
 
@@ -66,6 +68,8 @@ def create_csv(filename, wavel, transm):
 
         writer.writerow(transm)
 
+
+
 def fit_transmission(wavelengths, intensity_ratios):
     """
     -curve fit
@@ -109,15 +113,30 @@ def loss(q_int, wavelength):
     loss_list = [(2 * np.pi * n_g) / (q_int[i] * wavelength[i]* 1e2 ) for i in range(len(wavelength))]
     return loss_list
 
-def plot_results(wavelengths, intensity_ratios, a, r):
+def plot_results(wavelengths, intensity_ratios, a, r, widths, internal_factors, loaded_factors, loss_values):
     """
     Plots the original noisy data and the best fit curve.
     """
     fitted_intensities = transmission_model(wavelengths, a, r)
+    minima_wavelengths, minima_transmissions = find_minima(wavelengths, intensity_ratios)
+
+    avg_fwhm = statistics.mean(widths)
+    avg_q_int = statistics.mean(internal_factors)
+    avg_q_loaded = statistics.mean(loaded_factors)
+    avg_loss = statistics.mean(loss_values)
     
     plt.figure(figsize=(8, 5))
     plt.plot(wavelengths * 1e9, intensity_ratios, label='Noisy Data', color='b', alpha=0.5)
-    plt.plot(wavelengths * 1e9, fitted_intensities, label= f'Best Fit: a={a}, r={r}', color='r', linewidth=2)
+    plt.plot(wavelengths * 1e9, fitted_intensities, label= f'Best Fit: a={a}, r={r}', color='r', linewidth=1)
+    plt.scatter(minima_wavelengths * 1e9, minima_transmissions, color='black', 
+                label=(f'Minima. Avg FWHM: {avg_fwhm:.3e}, '
+                   f'Avg Q (Int): {avg_q_int:.3f}, '
+                   f'Avg Q (Loaded): {avg_q_loaded:.3f}, '
+                   f'Avg Loss: {avg_loss:.3f}'),
+                     s=10, zorder=3)
+
+
+    plt.legend(loc = 'upper right')
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Transmission')
     plt.title('Transmission vs Wavelength with Best Fit')
@@ -135,6 +154,8 @@ def find_minima(wavelenghts, intensity_ratios):
     minima_transmissions = np.array(intensity_ratios)[peaks]
     return minima_waves, minima_transmissions
 
+"""
+    ###uncomment if you want the graph with minimum peaks only###
 def plot_minima(minima_wavelengths, minima_transmissions):
     plt.figure(figsize=(8, 5))
     plt.plot(wavelengths * 1e9, intensities, label='Noisy Data', color='b', alpha=0.5)
@@ -145,6 +166,7 @@ def plot_minima(minima_wavelengths, minima_transmissions):
     plt.legend()
     plt.grid()
     plt.show()
+    """
 
 # Generate noisy transmission data
 wavelengths, intensities = calculate_transmission()
@@ -160,8 +182,6 @@ print(f"Optimal values: a={a}, r={r}")
 #Find FWHM
 
 
-plot_results(wavelengths, intensities, a, r)
-
 
 ##FIND PEAK
 minima_wavelenghts, minima_transmissions = find_minima(wavelengths, intensities)
@@ -172,7 +192,7 @@ widths = fwhm(a, r, minima_wavelenghts)
 print(f"FWHM: {widths}")
 
 #graph with minima plotted
-plot_minima(minima_wavelenghts, minima_transmissions)
+#plot_minima(minima_wavelenghts, minima_transmissions)
 
 loaded_factors = list(map(float, q_loaded(minima_wavelenghts, widths)))
 print(f"Q-Loaded: {loaded_factors}")
@@ -185,3 +205,18 @@ print(f"Loss: {loss_values}")
 
 
 ##make graph with average FWHM, Qint, Qloaded, Loss
+f_avg = statistics.mean(widths)
+print(f_avg)
+
+plot_results(wavelengths, intensities, a, r, widths, internal_factors, loaded_factors, loss_values)
+
+
+df = pd.read_csv("rr_test.csv", header= None)
+print(df.shape)
+x = df.iloc[0, :].values
+#print(x)
+y = df.iloc[1, :].values
+print(y)
+
+plt.plot(x,y)
+plt.show()
